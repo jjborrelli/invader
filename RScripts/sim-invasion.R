@@ -1,3 +1,5 @@
+t0 <- Sys.time()
+
 library(igraph)
 library(rnetcarto)
 library(NetIndices)
@@ -75,7 +77,7 @@ webprops <- function(nm1){
   gen <- mean(colSums(nm1))
   vul <- mean(rowSums(nm1))
   
-  clust <- transitivity(graph.adjacency(nm1),)
+  clust <- transitivity(graph.adjacency(nm1))
   
   return(c(S = S, C = C, LS = LperS, APL = apl, mTL = meanTL, mGen = gen, mVul = vul, CC = clust))
 }
@@ -119,35 +121,53 @@ wp.eq -wp1
 ###
 ### Invasion
 
-invdr <- n.vals(1, .15)
+invdr <- n.vals(100, .15)
 
-invmat <- n.mat(rbind(test1, invdr))
-is.connected(graph.adjacency(invmat))
+invmat <- list()
+idyn <- lapply(1:100, function(x) matrix(0, nrow = 2000, ncol = 61))
+m <- list()
+wp.inv <- matrix(0, nrow = 100, ncol = 9)
+colnames(wp.inv) <- c("N", "C", "LS", "APL", "mTL", "mGen", "mVul", "CC", "Mod")
 
-imat2 <- n.mat(rbind(test1[eqcom,], invdr))
-is.connected(graph.adjacency(invmat))
-
-modinv <- n.mod(imat2)
-m <- modinv[[1]][order(as.numeric(rownames(modinv[[1]])), decreasing = F),]
-m$names <- c(eqcom, 61)
-
-wp.inv <- c(webprops(imat2), Mod = modinv[[2]])
-
-####
-#### Post-invasion dynamics
-
-xi <- (((10^2)^TrophInd(invmat)$TL)/100)^-.25*0.314
-ri <- (colSums(invmat) == 0)
-par <- list(K = 1, x.i = xi, yij = 8, eij = .85, xpar = .2, 
-            B.o = 0.5, r.i = ri, A = invmat, G.i = Gi, FR = Fij)
+invmat <- lapply(1:100, function(x) n.mat(rbind(test1, invdr[x,])))
+tind <- lapply(invmat, TrophInd)
 state2 <- c(dyn[4000,-1], .1)
+allpar <- lapply(1:100, function(x){
+  xi <- (((10^2)^tind[[x]]$TL)/100)^-.25*0.314
+  ri <- (colSums(invmat[[x]]) == 0)
+  par <- list(K = 1, x.i = xi, yij = 8, eij = .85, xpar = .2, 
+              B.o = 0.5, r.i = ri, A = invmat[[x]], G.i = Gi, FR = Fij)
+  return(par)
+})
 
-idyn <- ode(y = state2, times = 1:2000, func = CRmod, parms = par, 
-           events = list(func = ext1, time = 1:2000))
 
+#for(i in 1:100){
+  #is.connected(graph.adjacency(invmat))
+  
+  #imat2 <- n.mat(rbind(test1[eqcom,], invdr[i,]))
+  #is.connected(graph.adjacency(invmat))
+  
+  #modinv <- n.mod(imat2)
+  #m[[i]] <- modinv[[1]][order(as.numeric(rownames(modinv[[1]])), decreasing = F),]
+  #m[[i]]$names <- c(eqcom, 61)
 
+  #m[[i]] <- cbind(m, tind[c(eqcom, 61),])
+  
+  #wp.inv[i,] <- c(webprops(imat2), Mod = modinv[[2]])
+  
+  ####
+  #### Post-invasion dynamics
+for(i in 1:100){  
+  idyn[[i]] <- ode(y = state2, times = 1:2000, func = CRmod, parms = allpar[[i]], 
+              events = list(func = ext1, time = 1:2000))
+  print(i)
+}
+
+matplot(sapply(idyn, function(x) x[,62]), typ = "l", lwd = 2)
+sum(sapply(idyn, function(x) x[2000,62]) == 0)
 
 
 t2 <- Sys.time()
 
 t2 - t1
+t2 - t0
