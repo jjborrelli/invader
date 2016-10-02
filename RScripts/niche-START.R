@@ -32,3 +32,11 @@ stopCluster(cl)
 
 t1 <- Sys.time()
 t1-t0
+
+idyn[[1]][1:2, 1:62]
+
+
+filepath.data <- "D:/jjborrelli/invadr/dynDATA-inv/"
+
+saveRDS(idyn, file = "D:/jjborrelli/invadr/dynDATA-inv/idyn1.Rds")
+
