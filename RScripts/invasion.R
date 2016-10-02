@@ -145,12 +145,12 @@ system.time(
 randos <- foreach(i = 1:1000) %dopar% {
   library(rend)
   library(NetIndices)
-  sink(file = paste0(filepath.sink, "web-", i, ".txt"))
+
   mat1 <- n.mat(n1[[i]])
   xi <- (((10^2)^TrophInd(mat1)$TL)/100)^-.25*.314
   dyn <- CRsimulator(mat1, t = 1:4000, yij = 8, eij = .85, x.i = xi)
   print(dyn)
-  sink()
+  
   write.csv(dyn, file = paste0(filepath.data, "web-", i, ".csv"))
   return(dyn)
 }
