@@ -33,7 +33,7 @@ Sys.time() - t1
   
   
 t2 <- Sys.time()
-for(i in 61:100){
+for(i in 301:330){
   invmat <- lapply(1:100, function(x) n.mat(rbind(n1[connecteds][[i]], allinvdrs[[i]][x,])))
 
   ###### get parameters
