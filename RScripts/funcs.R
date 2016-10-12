@@ -35,15 +35,38 @@ n.mat <- function(nv){
   return(new.mat)
 }
 
+conversion <- function(tm){
+  for(i in 1:nrow(tm)){
+    for(j in 1:ncol(tm)){
+      if(tm[i,j] == 1){tm[j,i] <- 1}
+    }
+  }
+  return(tm)
+}
+
+n.mod <- function(nm1){
+  #nm1 <- n.mat(nv)
+  nm2 <- conversion(nm1)
+  nc1 <- netcarto(nm2)
+  
+  return(nc1)
+}
 
 nodeprops <- function(nm1, mod1){
-  m1 <- mod1[order(as.numeric(rownames(mod1)), decreasing = F),]
+  m1 <- mod1[[1]][order(as.numeric(as.character(mod1[[1]]$name)), decreasing = F),]
   tind <- TrophInd(nm1)
   g1 <- graph.adjacency(nm1)
   outd <- degree(g1, mode = "out")
   ind <- degree(g1, mode = "in")
   
-  return(cbind(m1, tind, outdeg = outd, indeg = ind))
+  res <- cbind(name = NA, module = NA, connectivity = NA, participation = NA, role = NA, tind, outdeg = outd, indeg = ind)
+  res[sort(as.numeric(as.character(mod1[[1]]$name))),1] <- as.numeric(as.character(m1[,1]))
+  res[sort(as.numeric(as.character(mod1[[1]]$name))),2] <- m1[,2]
+  res[sort(as.numeric(as.character(mod1[[1]]$name))),3] <- m1[,3]
+  res[sort(as.numeric(as.character(mod1[[1]]$name))),4] <- m1[,4]
+  res[sort(as.numeric(as.character(mod1[[1]]$name))),5] <- m1[,5]
+  
+  return(res)
 }
 
 # compute S, C, L/S
