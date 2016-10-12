@@ -29,8 +29,10 @@ for(i in 1:330){
   num.invs[i] <- sum(sapply(idy, function(x) tail(x[2000,-1], 1) > 0))
 }
 
-
-summary(glm(cbind(num.invs, 100-num.invs)~wp.final, family = "binomial"))
+d.cv <- sapply(dyna.init, function(x) sd(x[3990:4000, -1])/mean(x[3990:4000, -1]))[1:330]
+hist(d.cv)
+summary(glm(cbind(num.invs, 100-num.invs)~d.cv, family = "binomial"))
+summary(glm(cbind(num.invs, 100-num.invs)~wp.init[,"C"]+d.cv, family = "binomial"))
 
 
 t1 <- Sys.time()
