@@ -8,6 +8,12 @@ library(doSNOW)
 library(rend)
 library(rootSolve)
 
+ext1 <- function (times, states, parms){
+  with(as.list(states), {
+    states[states < 10^-10] <- 0 
+    return(c(states))
+  })
+}
 
 n.vals <- function(S,C){
   niche<-runif(S,0,1)

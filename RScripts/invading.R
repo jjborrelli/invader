@@ -1,7 +1,7 @@
 library(parallel)
 library(doSNOW)
 
-filepath.data <- "D:/jjborrelli/invadr/dynDATA-inv/"
+filepath.data <- "D:/jjborrelli/invadr/dynDATA2-inv/"
 
 t1 <- Sys.time()
 
@@ -11,7 +11,7 @@ connecteds <- sapply(1:500, function(x){is.connected(graph.adjacency(n2m[[x]][ra
 randos2 <- randos[connecteds]
 
 allinvdrs <- list()
-for(i in 1:length(randos2)){  
+for(i in 1:330){  
   
   ##### get invaders
   invdr <- matrix(nrow = 100, ncol = 3)
@@ -33,7 +33,7 @@ Sys.time() - t1
   
   
 t2 <- Sys.time()
-for(i in 301:330){
+for(i in 1:100){
   invmat <- lapply(1:100, function(x) n.mat(rbind(n1[connecteds][[i]], allinvdrs[[i]][x,])))
 
   ###### get parameters
