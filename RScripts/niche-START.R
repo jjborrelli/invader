@@ -8,12 +8,16 @@ xiL <- lapply(n2m, function(x){(((10^2)^TrophInd(x)$TL)/100)^-.25*.314})
 riL <- lapply(n2m, function(x){(colSums(x) == 0)})
 pars <- lapply(1:500, function(x){list(K = 1, x.i = xiL[[x]], yij = 8, eij = .85, xpar = .2, 
                                         B.o = 0.5, r.i = riL[[x]], A = n2m[[x]], G.i = Gi,
-                                        FR = Fij)})
+                                        FR = Fbd)})
 
 state1 <- lapply(1:500, function(x) runif(60, .5, 1))
 
 
-filepath.data <- "D:/jjborrelli/invadr/dynDATA/"
+#filepath.data <- "D:/jjborrelli/invadr/dynDATA/"
+#filepath.data <- "D:/jjborrelli/invadr/dynDATA2/"
+#filepath.data <- "D:/jjborrelli/invadr/dynDATAq1/"
+filepath.data <- "D:/jjborrelli/invadr/dynDATAcp2/"
+
 
 cl <- makeCluster(detectCores()-1)
 clusterExport(cl, c("n2m", "pars", "state1", "filepath.data"))

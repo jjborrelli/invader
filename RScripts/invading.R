@@ -1,7 +1,11 @@
 library(parallel)
 library(doSNOW)
 
-filepath.data <- "D:/jjborrelli/invadr/dynDATA2-inv/"
+#filepath.data <- "D:/jjborrelli/invadr/dynDATA/"
+#filepath.data <- "D:/jjborrelli/invadr/dynDATA2/"
+#filepath.data <- "D:/jjborrelli/invadr/dynDATAq1-inv/"
+filepath.data <- "D:/jjborrelli/invadr/dynDATAcp2-inv/"
+
 
 t1 <- Sys.time()
 
@@ -11,7 +15,7 @@ connecteds <- sapply(1:500, function(x){is.connected(graph.adjacency(n2m[[x]][ra
 randos2 <- randos[connecteds]
 
 allinvdrs <- list()
-for(i in 1:330){  
+for(i in 1:100){  
   
   ##### get invaders
   invdr <- matrix(nrow = 100, ncol = 3)
@@ -42,7 +46,7 @@ for(i in 1:100){
   allpar <- lapply(1:100, function(x){
     xi <- (((10^2)^tind[[x]]$TL)/100)^-.25*0.314
     ri <- c(riL[connecteds][[i]],(sum(invmat[[x]][,ncol(invmat[[x]])]) == 0))
-    par <- list(K = 1, x.i = xi, yij = 8, eij = .85, xpar = .2, 
+    par <- list(K = 1, x.i = xi, yij = 8, eij = .85, xpar = 1, 
                 B.o = 0.5, r.i = ri, A = invmat[[x]], G.i = Gi, FR = Fij)
     return(par)
   })
