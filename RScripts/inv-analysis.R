@@ -19,6 +19,10 @@ hist(sqrt(wp.init[,"C"]*wp.init[,"S"]))
 
 wp.final <- t(sapply(lapply(1:330, function(x) n2m2[[x]][tail(dyna.init[[x]], 1)[-1] > 0,tail(dyna.init[[x]], 1)[-1] > 0]), webprops))
 
+
+mod.init <- lapply(n2m2, n.mod)
+mod.final <- lapply(lapply(1:330, function(x) n2m2[[x]][tail(dyna.init[[x]], 1)[-1] > 0,tail(dyna.init[[x]], 1)[-1] > 0]), n.mod)
+
 ifile <- grep(pattern = "inv", list.files(filepath.inv))
 
 dim(wp.init)
@@ -31,9 +35,40 @@ for(i in 1:330){
 
 d.cv <- sapply(dyna.init, function(x) sd(x[3990:4000, -1])/mean(x[3990:4000, -1]))[1:330]
 hist(d.cv)
-summary(glm(cbind(num.invs, 100-num.invs)~d.cv, family = "binomial"))
-summary(glm(cbind(num.invs, 100-num.invs)~wp.init[,"C"]+d.cv, family = "binomial"))
 
+complx <- sqrt(wp.final[,c("C")]*wp.final[,c("S")])
+
+d.cv <- sapply(dyna.init, function(x) (apply(x[3995:4000, -1], 2, function(y) sd(y)/mean(y))[which(x[4000,-1] > 0)]))[1:330]
+
+summary(glm(cbind(num.invs, 100-num.invs)~d.cv, family = "binomial"))
+summary(glm(cbind(num.invs, 100-num.invs)~wp.final[,"C"]+d.cv, family = "binomial"))
+summary(glm(cbind(num.invs, 100-num.invs)~wp.final[,c("S","C")], family = "binomial"))
+summary(glm(cbind(num.invs, 100-num.invs)~complx, family = "binomial"))
+
+nm2f <- lapply(1:330, function(x) n2m2[[x]][tail(dyna.init[[x]], 1)[-1] > 0,tail(dyna.init[[x]], 1)[-1] > 0])
+
+web.init <- lapply(n2m2, graph.adjacency)
+web.final <- lapply(lapply(1:330, function(x) n2m2[[x]][tail(dyna.init[[x]], 1)[-1] > 0,tail(dyna.init[[x]], 1)[-1] > 0]), graph.adjacency)
+
+mot.init <- lapply(web.init, getmot)
+mot.final <- lapply(web.final, getmot)
+
+init.mod <- lapply(n2m2, n.mod)
+final.mod <- lapply(nm2f, n.mod)
+
+np.init <- lapply(1:330, function(x) nodeprops(n2m2[[x]], init.mod[[x]]))
+np.final <- lapply(1:330, function(x) nodeprops(nm2f[[x]], final.mod[[x]]))
+
+motsinit <- do.call(rbind, mot.final)
+persists <- unlist(lapply(dyna.init[1:330], function(x) x[4000, -1] > 0))
+
+np.test <- lapply(np.init, function(x) cbind(x$role, x$TL, x$outdeg, x$indeg))
+np.test2 <- do.call(rbind, np.test)
+fit2 <- glm(persists~np.test2[,3:4], family = "binomial")
+summary(fit2)
+
+fit1 <- glm(persists~motsinit$s1+motsinit$s4+motsinit$s5+ rowSums(motsinit[,7:14]), family = "binomial")
+summary(fit1)
 
 t1 <- Sys.time()
 

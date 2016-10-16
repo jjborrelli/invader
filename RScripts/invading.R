@@ -34,7 +34,7 @@ for(i in 1:100){
   print(i)
 }
 Sys.time() - t1  
-  
+saveRDS(object = allinvdrs, file = paste0(filepath.data, "allinvdrscp2.rds"))  
   
 t2 <- Sys.time()
 for(i in 1:100){

@@ -1,5 +1,6 @@
 library(igraph)
 library(NetIndices)
+library(rnetcarto)
 library(plyr)
 library(ggplot2)
 library(reshape2)
@@ -56,6 +57,43 @@ n.mod <- function(nm1){
   nc1 <- netcarto(nm2)
   
   return(nc1)
+}
+
+motif_counter <- function(graph.lists){
+  require(igraph)
+  
+  if(!is.list(graph.lists)){
+    stop("The input should be a list of graph objects")
+  }
+  
+  triad.count <- lapply(graph.lists, triad.census)
+  triad.matrix <- matrix(unlist(triad.count), nrow = length(graph.lists), ncol = 16, byrow = T)
+  colnames(triad.matrix) <- c("empty", "single", "mutual", "s5", "s4", "s1", "d4",
+                              "d3", "s2", "s3","d8", "d2", "d1", "d5", "d7", "d6")
+  
+  triad.df <- as.data.frame(triad.matrix)
+  
+  motif.data.frame <- data.frame(s1 = triad.df$s1, s2 = triad.df$s2, s3 = triad.df$s3, s4 = triad.df$s4, 
+                                 s5 = triad.df$s5, d1 = triad.df$d1, d2 = triad.df$d2, d3 = triad.df$d3, d4 = triad.df$d4,
+                                 d5 = triad.df$d5, d6 = triad.df$d6, d7 = triad.df$d7, d8 = triad.df$d8)
+  
+  return(motif.data.frame)
+}
+
+getmot <- function(web){
+  com <- combn(length(V(web)), 3)
+  adj <- get.adjacency(web, sparse = F)
+  
+  tbt <- lapply(1:ncol(com), function(x){adj[com[,x], com[,x]]})
+  conn <- sapply(tbt, function(x) is.connected(graph.adjacency(x)))
+  mots <- motif_counter(lapply(tbt[conn], graph.adjacency))
+  
+  m1 <- melt(lapply(1:sum(conn), function(x) com[,x]))
+  m2 <- mots[m1$L1,]
+  m3 <- aggregate(m2, list(m1$value), sum)
+  
+  
+  return(m3)
 }
 
 nodeprops <- function(nm1, mod1){
